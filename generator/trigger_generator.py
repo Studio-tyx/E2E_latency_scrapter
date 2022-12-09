@@ -78,7 +78,8 @@ class TriggerGenerator:
         for i in range(self.total_length):
             if self.time[i] != "":
                 t = time.time()
-                channel.basic_publish(exchange="", routing_key='trigger', body=f'{t},{self.time[i]}')
+                # channel.basic_publish(exchange="", routing_key='trigger', body=f'{t},{self.time[i]}')
+                channel.basic_publish(exchange="", routing_key='trigger', body=f'{self.time[i]}')
                 # self.write_to_txt(f'{t},{self.time[i]}')
             time.sleep(1)
 
@@ -86,7 +87,7 @@ class TriggerGenerator:
 def main():
     generator = TriggerGenerator(10)
     generator.generate_trigger(2, 3, "RAN")
-    generator.generate_trigger(1, 3, "CEN")
+    # generator.generate_trigger(1, 3, "CEN")
     generator.show_console()
     generator.publish_to_rabbitmq()
 

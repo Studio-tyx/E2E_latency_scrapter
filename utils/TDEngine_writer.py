@@ -15,10 +15,7 @@
 # conn.close()
 from taosrest import connect, TaosRestConnection, TaosRestCursor
 
-conn: TaosRestConnection = connect(url="10.214.131.191:6041",
-                                   user="root",
-                                   password="root",
-                                   timeout=30)
+conn: TaosRestConnection = connect(url="http://10.214.131.191:6041", user="root", password="taosdata", timeout=30)
 cursor: TaosRestCursor = conn.cursor()
 cursor.execute("show databases;")
 print("databases:", cursor.rowcount)

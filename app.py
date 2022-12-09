@@ -15,7 +15,11 @@ channel.queue_declare(queue='hello')
 # 回调函数
 def callback(ch, method, properties, body):
     print(body)
-    # print('消费者收到:{}'.format(body))
+    event=body.decode(encoding = 'utf-8')
+    print('消费者收到:{}'.format(body))
+    print(event)
+    print(type(body))
+    print(type(event))
 
 # channel: 包含channel的一切属性和方法
 # method: 包含 consumer_tag, delivery_tag, exchange, redelivered, routing_key
