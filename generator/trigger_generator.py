@@ -81,6 +81,7 @@ class TriggerGenerator:
                 # channel.basic_publish(exchange="", routing_key='trigger', body=f'{t},{self.time[i]}')
                 channel.basic_publish(exchange="", routing_key='trigger', body=f'{self.time[i]}')
                 # self.write_to_txt(f'{t},{self.time[i]}')
+                # TODO: send time to TDEngine
             time.sleep(1)
 
 

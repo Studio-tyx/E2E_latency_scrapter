@@ -1,28 +1,13 @@
-
+import redis
 import hashlib
 import sys
+from taosrest import connect, TaosRestConnection, TaosRestCursor
 
 def main(args=None):
-    md5encoder = hashlib.new("md5")
-    body = 'temperature'
-    # event = body.decode('utf-8')
-    md5encoder.update(body.encode('utf-8'))
-    fid = md5encoder.hexdigest()
-    print(fid)
-    # print("b67dc6cccbf6aeaeeeef8690bacd403c")
-    # body = 'temperature'
-    # event = body.decode('utf-8')
-    # md5encoder.update(body.encode('utf-8'))
-    # fid = md5encoder.hexdigest()
-    #print(fid)
-
-    md5encoder = hashlib.new("md5")
-    body = 'temperature'
-    # event = body.decode('utf-8')
-    md5encoder.update(body.encode('utf-8'))
-    fid = md5encoder.hexdigest()
-    print(fid)
-
+    conn: TaosRestConnection = connect(url="http://10.214.131.191:6041", user="root", password="taosdata", timeout=30)
+    cursor: TaosRestCursor = conn.cursor()
+    cursor.execute("SELECT * FROM valid.{} LIMIT 1".format("temperature"))  # 从valid数据库中对应的trigger表中获取一个数据
+    print(cursor.rowcount)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,9 @@
+import argparse
+import hashlib
 import re
 import sys
+
 import redis
-import hashlib
-import argparse
 
 
 def maketheparser():
@@ -19,7 +20,8 @@ def main(args=None):
     P = maketheparser()
     A = P.parse_args(args=args)
 
-    r = redis.Redis(host='10.214.131.191', port=6379, db=0, decode_responses=True)  # decode_responses=True: 控制redis存数据是string格式
+    r = redis.Redis(host='10.214.131.191', port=6379, db=0,
+                    decode_responses=True)  # decode_responses=True: 控制redis存数据是string格式
 
     # md5encoder = hashlib.md5()
 
