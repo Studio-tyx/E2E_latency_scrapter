@@ -29,14 +29,14 @@ def mysql_db(no, t1, t2):
         port=3306,
         database="docker_log",
         charset="utf8",
-        user="log_1",
+        user="log",
         passwd="1"
     )
     try:
         with conn.cursor() as cursor:
             t = time.time()
             # 准备SQL语句
-            sql = f'update log2 set startime={t1},endtime={t2} where no={no};';
+            sql = f'update latency set first_line={t1}, last_line={t2} where req_no={no};';
             # 执行SQL语句
             cursor.execute(sql)
             # 执行完SQL语句后的返回结果都是保存在cursor中

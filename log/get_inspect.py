@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-# import pymysql
+import pymysql
 
 
 def get_time(container_name):
@@ -26,14 +26,15 @@ def get_time(container_name):
     time3 = datetime.datetime.strptime(str3[0:26], '%Y-%m-%d %H:%M:%S.%f')
     timestamp3 = time.mktime(time3.timetuple()) + time3.microsecond / 1000000.0
     # print(time.mktime(time2.timetuple()) + time1.microsecond / 1000000.0)
-    # 先 import time 然后 int(time.mktime(time.strptime('YYYY-MM-DD HH:MM:SS', '%Y-%m-%d %H:%M:%S')))
+    # ▒~E~H import time ▒~D▒▒~P~N int(time.mktime(time.strptime('YYYY-MM-DD HH:MM:SS', '%Y-%m-%d %H:%M:%S')))
     print(time2 - time1)
     res = time2 - time1
     # log_write(f'{container_name},{time}')
     # log_write(container_name+","+time)
     underline_index = container_name.index('_')
     no = int(container_name[underline_index + 1:])
-    log_write(f'{container_name},{timestamp1},{timestamp2},{container_name}')
+    # log_write(f'{container_name},{timestamp1},{timestamp2},{container_name}')
+    mysql_db(no,timestamp1,timestamp2,timestamp3)
     return res
 
 
@@ -55,33 +56,33 @@ def log_write(string):
     sys.stdout = stdout_backup
 
 
-# def mysql_db(no, t1, t2):
-#     # 连接数据库肯定需要一些参数
-#     conn = pymysql.connect(
-#         host="10.214.131.191",
-#         port=3306,
-#         database="docker_log",
-#         charset="utf8",
-#         user="log",
-#         passwd="1"
-#     )
-#     try:
-#         with conn.cursor() as cursor:
-#             t = time.time()
-#             # 准备SQL语句
-#             sql = f'update log2 set ac_start={t1},ac_end={t2} where no={no};';
-#             # 执行SQL语句
-#             cursor.execute(sql)
-#             # 执行完SQL语句后的返回结果都是保存在cursor中
-#             # 所以要从cursor中获取全部数据
-#             # datas = cursor.fetchall()
-#             conn.commit()
-#             print(f'update no{no}, recetime{t1}')
-#     except Exception as e:
-#         print("数据库操作异常：\n", e)
-#     finally:
-#         # 不管成功还是失败，都要关闭数据库连接
-#         conn.close()
+def mysql_db(no, t1, t2, t3):
+    # ▒~^▒~N▒▒~U▒▒~M▒▒~S▒~B▒▒~Z▒~\~@▒~A▒~@▒~[▒~O~B▒~U▒
+    conn = pymysql.connect(
+        host="10.214.131.191",
+        port=3306,
+        database="docker_log",
+        charset="utf8",
+        user="log",
+        passwd="1"
+    )
+    try:
+        with conn.cursor() as cursor:
+            t = time.time()
+            # ▒~G~F▒~GSQL语▒~O▒
+            sql = f'update latency set create_ac={t1},start_ac={t2}, finish_ac={t3} where req_no={no};';
+            # ▒~I▒▒~LSQL语▒~O▒
+            cursor.execute(sql)
+            # ▒~I▒▒~L▒~LSQL语▒~O▒▒~P~N▒~Z~D▒~T▒~[~^▒~S▒~^~\▒~C▒▒~X▒▒~]▒~X▒~\▒cursor中
+            # ▒~I~@以▒~A▒~Ncursor中▒~N▒▒~O~V▒~E▒▒~C▒▒~U▒▒~M▒
+            # datas = cursor.fetchall()
+            conn.commit()
+            print(f'update no{no}, recetime{t1}')
+    except Exception as e:
+        print("▒~U▒▒~M▒▒~S▒~S~M▒~\▒~B常▒~Z\n", e)
+    finally:
+        # ▒~M管▒~H~P▒~J~_▒~X▒~X▒失败▒~L▒~C▒▒~A▒~E▒▒~W▒▒~U▒▒~M▒▒~S▒~^▒~N▒
+        conn.close()
 
 
 def main():

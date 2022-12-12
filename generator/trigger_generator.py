@@ -1,8 +1,8 @@
 import random
 import time
-
 import pika
 
+from utils.MySQL_writer import MySQLWriter
 from utils.file_writer import FileWriter
 
 
@@ -75,13 +75,17 @@ class TriggerGenerator:
 
         channel = connection.channel()
         channel.queue_declare(queue='trigger')
+        req_no = 20
         for i in range(self.total_length):
             if self.time[i] != "":
-                t = time.time()
+                # TODO: add valid time to TDEngine
                 # channel.basic_publish(exchange="", routing_key='trigger', body=f'{t},{self.time[i]}')
-                channel.basic_publish(exchange="", routing_key='trigger', body=f'{self.time[i]}')
+                mysql =  MySQLWriter("10.214.131.191", "docker_log", "log", "1")
+                t = time.time()
+                mysql.sql_exe(f'insert into latency (req_no,rabbit_send) values ({req_no},{t});')
+                channel.basic_publish(exchange="", routing_key='trigger', body=f'{self.time[i]},{req_no}')
+                req_no += 1
                 # self.write_to_txt(f'{t},{self.time[i]}')
-                # TODO: send time to TDEngine
             time.sleep(1)
 
 

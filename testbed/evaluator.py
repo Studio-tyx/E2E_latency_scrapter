@@ -1,8 +1,10 @@
+import time
+
 import pika
 import redis
 import requests
 from taosrest import connect, TaosRestConnection, TaosRestCursor
-
+import pymysql
 from base_thread import BaseThread
 
 # --------------------------------------------------------------------------------------------------------------#
@@ -21,7 +23,6 @@ channel.queue_declare(queue='trigger')
 conn: TaosRestConnection = connect(url="http://10.214.131.191:6041", user="root", password="taosdata", timeout=30)
 cursor: TaosRestCursor = conn.cursor()
 
-
 # --------------------------------------------------------------------------------------------------------------#
 def check_valid(trigger, rule):
     print(rule["Triggers"])
@@ -36,11 +37,15 @@ def check_valid(trigger, rule):
     return True
 
 
-def actuate_func(func_id):
+def actuate_func(func_id, req_no):
     function = r.hgetall(func_id)
     func_name = function["name"]
     print(f'call: {func_name}')
-    res = requests.get('http://10.214.131.192:9211/func/{}'.format(func_name))
+    t = time.time()
+    sql = f'update latency set call_func = {t} where req_no={req_no};'
+    mysql_db(sql)
+    args = {"req_no": f'{req_no}'}
+    res = requests.get('http://10.214.131.192:9211/func/{}'.format(func_name), params=args)
     return res.text
 
 
@@ -49,7 +54,15 @@ def actuate_func(func_id):
 # properties: basic_publish 通过 properties 传入的参数
 # body: basic_publish发送的消息
 def callback(ch, method, properties, body):
-    key = body.strip().decode('utf-8').replace(',', '')  # temperature
+    request = body.strip().decode('utf-8').split(',')
+    print(f'request:{request}')
+    key = request[0]
+    req_no = request[2]
+    t = time.time()
+    sql = f'update latency set rabbit_consume = {t} where req_no = {req_no};'
+    mysql_db(sql)
+    # key = body.strip().decode('utf-8').replace(',', '')  # temperature
+    # TODO: multi-trigger like: temperature,camera
     num_of_related_rules = r.llen(key)  # 某个trigger对应的rules
     check_threads = []
     rules = []
@@ -67,15 +80,37 @@ def callback(ch, method, properties, body):
             actions = rules[i]["Actions"].split(',')
             for action in actions:
                 action = action.replace('\'', '')
-                t = BaseThread(target=actuate_func, args=(action,))
+                t = BaseThread(target=actuate_func, args=(action, req_no,))
                 exec_threads.append(t)
                 t.start()
     for t in exec_threads:
         t.join()
-        print(t.get_result())
+        # print(t.get_result())
         # TODO: use rabbitMQ to return the actuation id back to the user
 
-
+def mysql_db(str):
+    # 连接数据库肯定需要一些参数
+    conn = pymysql.connect(
+        host="10.214.131.191",
+        port=3306,
+        database="docker_log",
+        charset="utf8",
+        user="log",
+        passwd="1"
+    )
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(str)
+            # 执行完SQL语句后的返回结果都是保存在cursor中
+            # 所以要从cursor中获取全部数据
+            # datas = cursor.fetchall()
+            conn.commit()
+            print(f'successfully run: {str}')
+    except Exception as e:
+        print("数据库操作异常：\n", e)
+    finally:
+        # 不管成功还是失败，都要关闭数据库连接
+        conn.close()
 # --------------------------------------------------------------------------------------------------------------#
 channel.basic_consume(queue='trigger', auto_ack=True, on_message_callback=callback)
 
