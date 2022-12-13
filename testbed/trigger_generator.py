@@ -42,7 +42,7 @@ class TriggerGenerator:
                 i_count = 0
                 while time_point < self.time_length and i_count < count:
                     if self.time[time_point].find(trigger.get("name")) == -1:
-                        self.time[time_point + trigger.get("exe_time")] += (trigger.get("name") + "\t")
+                        self.time[time_point + trigger.get("exe_time")] += (trigger.get("name") + ",")
                     time_point += interval
                     i_count += 1
             elif distribute_type == "RAN":
@@ -75,7 +75,7 @@ class TriggerGenerator:
 
         channel = connection.channel()
         channel.queue_declare(queue='trigger')
-        req_no = 20
+        req_no = 100
         for i in range(self.total_length):
             if self.time[i] != "":
                 # TODO: add valid time to TDEngine
@@ -90,8 +90,10 @@ class TriggerGenerator:
 
 
 def main():
-    generator = TriggerGenerator(10)
-    generator.generate_trigger(2, 3, "RAN")
+    generator = TriggerGenerator(40)
+    generator.generate_trigger(2, 10, "AVG")    # temperature ==> sleep
+    # generator.generate_trigger(3, 10, "AVG")    # humid ==> lamp
+    # generator.generate_trigger(4, 10, "AVG")    # psphinx ==> yolo
     # generator.generate_trigger(1, 3, "CEN")
     generator.show_console()
     generator.publish_to_rabbitmq()

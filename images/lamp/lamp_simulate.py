@@ -6,16 +6,16 @@ import pymysql
 
 
 def turn_on_gpio(PIN):
-    print("GPIO.setmode(GPIO.BOARD)")
-    print("GPIO.setup(PIN, GPIO.OUT)")
-    print("GPIO.output(PIN, GPIO.HIGH)")
-
+    # print("GPIO.setmode(GPIO.BOARD)")
+    # print("GPIO.setup(PIN, GPIO.OUT)")
+    # print("GPIO.output(PIN, GPIO.HIGH)")
+    time.sleep(0.03)
 
 def turn_off_gpio(PIN):
-    print("GPIO.setmode(GPIO.BOARD)")
-    print("GPIO.setup(PIN, GPIO.OUT)")
-    print("GPIO.output(PIN, GPIO.LOW)")
-
+    # print("GPIO.setmode(GPIO.BOARD)")
+    # print("GPIO.setup(PIN, GPIO.OUT)")
+    # print("GPIO.output(PIN, GPIO.LOW)")
+    time.sleep(0.03)
 
 # initPath = "./Init.yaml"
 
@@ -33,7 +33,7 @@ def mysql_db(no, t1, t2):
         with conn.cursor() as cursor:
             t = time.time()
             # 准备SQL语句
-            sql = f'update log2 set startime={t1},endtime={t2} where no={no};';
+            sql = f'update latency set first_line={t1}, last_line={t2} where req_no={no};';
             # 执行SQL语句
             cursor.execute(sql)
             # 执行完SQL语句后的返回结果都是保存在cursor中
@@ -67,7 +67,8 @@ def run(no):
     led.init()
     led.turn_on()
     t2 = time.time()
-    mysql_db(no, t1, t2)
+    print(t2-t1)
+    # mysql_db(no, t1, t2)
 
 
 if __name__ == "__main__":

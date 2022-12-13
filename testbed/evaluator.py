@@ -45,7 +45,7 @@ def actuate_func(func_id, req_no):
     sql = f'update latency set call_func = {t} where req_no={req_no};'
     mysql_db(sql)
     args = {"req_no": f'{req_no}'}
-    res = requests.get('http://10.214.131.192:9211/func/{}'.format(func_name), params=args)
+    res = requests.get('http://10.214.131.191:9211/func/{}'.format(func_name), params=args)
     return res.text
 
 

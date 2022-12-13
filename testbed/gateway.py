@@ -1,8 +1,8 @@
 import time
 import docker
 from flask import Flask, request
-from get_inspect import get_time
-from MySQL_writer import MySQLWriter
+from log.get_inspect import get_time
+from utils.MySQL_writer import MySQLWriter
 
 app = Flask(__name__)
 
@@ -20,11 +20,19 @@ def call_func(func_id):
     mysql.sql_exe(f'update latency set gateway_func={t}, container_ID=\'{func_id}_{req_no}\' where req_no = {req_no};')
     client = docker.from_env()
     print(func_id)
-    print(client.containers.run('sleep:1.0', command=f'python3 sleep.py --no {req_no}', name=f'sleep_{req_no}'))
+    if func_id == 'sleep':
+        print(client.containers.run('sleep:1.0', command=f'python3 sleep.py --no {req_no}', name=f'sleep_{req_no}'))
+    elif func_id == 'darknet':
+        print(client.containers.run('darknet:1.2',command=f'../scripts/execute.sh 0 0',name=f'darknet',mounts = [docker.types.Mount(target ="/mnt", source = "/ifttt/utils/DeFog/DeFog",type = 'bind')]))
+    elif func_id == 'lamp':
+        print(
+            client.containers.run('lamp:1.1', command=f'python3 turn_on_light.py --no {req_no}', name=f'lamp_{req_no}'))
     get_time(container_name=f'{func_id}_{req_no}')
     print(client.containers)
-    container = client.containers.get(f'sleep_{req_no}')
+    container = client.containers.get(f'{func_id}_{req_no}')
     print(container.remove(force=True))
+
+
     return "function {} is called".format(func_id)
 
 
